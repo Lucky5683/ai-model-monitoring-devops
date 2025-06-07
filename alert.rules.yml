@@ -1,0 +1,18 @@
+groups:
+- name: alert.rules
+  rules:
+  - alert: HighCPUUsage
+    expr: 100 - (avg by(instance)(rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100) > 80
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High CPU Usage Detected!"
+
+  - alert: LowDiskSpace
+    expr: node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes * 100 < 10
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Low Disk Space!"
