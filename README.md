@@ -1,116 +1,236 @@
+````markdown
+# AI & System Monitoring with Prometheus and Grafana
 
-##  **README.md – Monitoring AI Model with DevOps Sandbox**
+A local DevOps observability project that demonstrates system monitoring using
+Prometheus, Node Exporter, and Grafana in an Ubuntu/Vagrant environment.
 
-```markdown
-# Monitoring an AI Model Using a Local DevOps Sandbox
+The project collects system-level metrics, stores them in Prometheus, and
+visualizes them through Grafana dashboards.
 
-This project demonstrates how to monitor system and AI model performance using DevOps tools in a local sandbox environment. The stack includes **Prometheus**, **Node Exporter**, and **Grafana** for metrics collection, storage, and visualization.
+## Architecture
 
-##  Objective
+```text
+Ubuntu / Vagrant Environment
+            │
+            ▼
+      Node Exporter
+            │
+            │ System Metrics
+            ▼
+        Prometheus
+            │
+            │ PromQL Queries
+            ▼
+         Grafana
+            │
+            ▼
+     Monitoring Dashboard
+````
 
-To simulate a DevOps monitoring system that could be used to observe the health and performance of systems or AI models running locally.
+## Objective
 
-##  Tools & Technologies
+The objective of this project is to build a local monitoring environment that
+can be used to observe system health and performance.
 
--  **Ubuntu (Vagrant box)**
--  **Prometheus** (for metric collection)
--  **Node Exporter** (to export system metrics)
--  **Grafana** (for visualization)
--  (Optional) **Docker** for future ease of deployment
+The project demonstrates:
 
-##  Folder Structure
+* Metrics collection
+* Metrics scraping
+* Prometheus configuration
+* PromQL queries
+* Grafana dashboards
+* System observability
+* DevOps monitoring concepts
 
-```
+## Technologies
 
-/monitoring-project/
+* Ubuntu
+* Vagrant
+* Prometheus
+* Node Exporter
+* Grafana
+* Bash / Shell
+* PromQL
+
+## Project Structure
+
+```text
+ai-model-monitoring-devops/
 │
-├── prometheus/
-│   └── prometheus.yml  # Configuration for Prometheus
-│
-├── dashboards/
-│   └── grafana-import.json  # Predefined Grafana dashboard
-│
+├── Vagrantfile
+├── prometheus.yml
+├── alert.rules.yml
+├── dashboards.json
+├── install.sh
+├── provision.sh
 ├── README.md
-└── setup-guide.sh           # Optional: Script for setting up everything
+│
+└── docs/
+    ├── netdata-metrics-overview.png
+    ├── prometheus-targets.png
+    ├── prometheus-node-metrics.png
+    ├── grafana-node-exporter-dashboard.png
+    ├── grafana-monitoring-panels.png
+    └── grafana-system-metrics.png
+```
 
-````
+## Monitoring Stack
 
-##  Setup Instructions
+### Node Exporter
 
-### 1. Clone this repo
+Node Exporter exposes system-level metrics from the Ubuntu environment.
+
+Examples include:
+
+* CPU metrics
+* Memory metrics
+* Disk metrics
+* Network metrics
+* System information
+
+### Prometheus
+
+Prometheus collects and stores the metrics exposed by Node Exporter.
+
+The Prometheus configuration defines the monitoring targets and scrape
+configuration.
+
+PromQL queries are used to analyze collected metrics.
+
+### Grafana
+
+Grafana connects to Prometheus as a data source and provides dashboards for
+visualizing system performance.
+
+The dashboard includes monitoring views for:
+
+* CPU
+* Memory
+* Network traffic
+* Disk usage
+* System processes
+* Storage
+* Node Exporter metrics
+
+## Monitoring Workflow
+
+```text
+System
+  ↓
+Node Exporter
+  ↓
+Prometheus Scraping
+  ↓
+Metric Storage
+  ↓
+PromQL
+  ↓
+Grafana
+  ↓
+Visualization
+```
+
+## Example PromQL Queries
+
+### CPU Idle Rate
+
+```promql
+rate(node_cpu_seconds_total{mode="idle"}[1m])
+```
+
+### Memory Usage
+
+```promql
+node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes
+```
+
+### Memory Utilization
+
+```promql
+100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))
+```
+
+## Running the Project
+
+### 1. Start the Vagrant Environment
 
 ```bash
-git clone https://github.com/your-username/devops-sandbox-monitoring.git
-cd devops-sandbox-monitoring
-````
-
-### 2. Install Prometheus & Node Exporter
-
-```bash
-sudo apt update
-sudo apt install prometheus
-wget https://github.com/prometheus/node_exporter/releases/latest/download/node_exporter-*.tar.gz
+vagrant up
 ```
 
-### 3. Configure Prometheus
+### 2. Access Prometheus
 
-Edit `/etc/prometheus/prometheus.yml`:
-
-```yaml
-scrape_configs:
-  - job_name: 'node_exporter'
-    static_configs:
-      - targets: ['localhost:9100']
+```text
+http://localhost:9090
 ```
 
-Then restart Prometheus:
+### 3. Access Grafana
 
-```bash
-sudo systemctl restart prometheus
+```text
+http://localhost:3000
 ```
 
-### 4. Start Node Exporter
+### 4. Verify Node Exporter
 
-```bash
-./node_exporter
+Node Exporter runs on:
+
+```text
+http://localhost:9100
 ```
 
-### 5. Install Grafana
+## Project Results
 
-```bash
-sudo apt install -y adduser libfontconfig1
-wget https://dl.grafana.com/oss/release/grafana-<version>.deb
-sudo dpkg -i grafana-<version>.deb
-```
+The monitoring environment successfully demonstrates:
 
-Access Grafana at: `http://localhost:3000`
-Default login: `admin / admin`
+* Prometheus running with an active monitoring target
+* Node Exporter exposing system metrics
+* PromQL queries for CPU and memory metrics
+* Grafana dashboards connected to Prometheus
+* Visualization of CPU, memory, network, and disk metrics
 
-### 6. Import Dashboard
+## Screenshots
 
-* Go to Grafana → Dashboards → Import
-* Paste your dashboard JSON from `dashboards/grafana-import.json`
+### Prometheus Targets
 
-##  Status
+![Prometheus Targets](docs/prometheus-targets.png)
 
-*  Prometheus up & running
-*  Node Exporter integrated
-*  Grafana dashboard visualizing CPU, memory, GC stats
-*  Custom queries written and tested
+### Prometheus Node Metrics
 
----
+![Prometheus Node Metrics](docs/prometheus-node-metrics.png)
 
-##  Key Learning Outcomes
+### Grafana System Metrics
 
-* CI/CD integration with monitoring tools
-* Sandbox setup for testing and monitoring AI environments
-* Visual dashboard creation for observability
+![Grafana System Metrics](docs/grafana-system-metrics.png)
 
-```
+### Grafana Node Exporter Dashboard
 
+![Grafana Node Exporter Dashboard](docs/grafana-node-exporter-dashboard.png)
 
+## Key Learning Outcomes
 
----
+* Understanding monitoring and observability
+* Configuring Prometheus scrape targets
+* Working with Node Exporter
+* Writing PromQL queries
+* Building Grafana dashboards
+* Monitoring system resources
+* Working with Vagrant-based development environments
+* Understanding the relationship between metrics collection, storage, and visualization
 
-Let me know if you'd like a **PDF** version or want to include screenshots, GitHub link, or a voiceover explanation.
+## Future Improvements
+
+* Add custom application-level metrics
+* Add Alertmanager for alert notifications
+* Containerize the monitoring stack using Docker Compose
+* Add custom Grafana dashboards
+* Monitor application and ML-model-specific metrics
+* Deploy the monitoring stack to a cloud environment
+
+## Author
+
+**Dinesh Kumar**
+
+Computer Science Engineering
+Artificial Intelligence & Data Science
+
 ```
